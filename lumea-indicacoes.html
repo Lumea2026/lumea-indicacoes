@@ -1,0 +1,1485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Luméa — Sistema de Indicações</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@100;200;300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --cream:#FAF6F0;
+  --gold:#C9A96E;
+  --gold-light:#E2C89A;
+  --gold-dark:#A07840;
+  --charcoal:#1A1614;
+  --warm-gray:#8A7F78;
+  --rose-nude:#D4B5A8;
+  --bg:#FAF6F0;
+  --white:#FFFFFF;
+  --border:rgba(201,169,110,0.2);
+  --success:#6B8E6B;
+  --error:#C0625A;
+}
+html,body{height:100%;font-family:'Josefin Sans',sans-serif;background:var(--cream);color:var(--charcoal);font-size:13px;}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px;opacity:.4;}
+
+/* ── VIEWS ── */
+.view{display:none;min-height:100vh;}
+.view.active{display:block;}
+
+/* ── LOGO HEADER ── */
+.app-header{background:var(--charcoal);padding:20px 24px 18px;position:relative;overflow:hidden;}
+.app-header::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 60% 80% at 0% 50%,rgba(201,169,110,0.08) 0%,transparent 70%);pointer-events:none;}
+.header-inner{display:flex;align-items:center;justify-content:space-between;max-width:900px;margin:0 auto;}
+.logo-mark{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:28px;letter-spacing:8px;color:var(--cream);text-transform:uppercase;line-height:1;}
+.logo-mark .a{color:var(--gold-light);}
+.logo-sub{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-top:2px;font-weight:100;}
+.header-ornament{display:flex;align-items:center;gap:6px;opacity:.4;}
+.h-line{width:30px;height:1px;background:var(--gold);}
+.h-diamond{width:4px;height:4px;background:var(--gold);transform:rotate(45deg);}
+.nav-btn{background:none;border:1px solid rgba(201,169,110,0.3);color:var(--gold-light);font-family:'Josefin Sans',sans-serif;font-size:8px;letter-spacing:3px;text-transform:uppercase;padding:6px 14px;cursor:pointer;border-radius:1px;transition:all .2s;}
+.nav-btn:hover{background:rgba(201,169,110,0.1);}
+.nav-btn.active-nav{background:var(--gold);color:var(--charcoal);border-color:var(--gold);}
+
+/* ── CONTAINER ── */
+.container{max-width:520px;margin:0 auto;padding:28px 20px 60px;}
+.container-wide{max-width:900px;margin:0 auto;padding:28px 20px 60px;}
+
+/* ── SECTION LABEL ── */
+.slabel{font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--warm-gray);font-weight:200;margin-bottom:20px;display:flex;align-items:center;gap:12px;}
+.slabel::after{content:'';flex:1;height:1px;background:linear-gradient(to right,var(--gold-light),transparent);opacity:.4;}
+
+/* ── CARDS ── */
+.card{background:var(--white);border:1px solid var(--border);border-radius:2px;padding:24px;margin-bottom:16px;}
+.card-dark{background:var(--charcoal);border:1px solid rgba(201,169,110,0.15);border-radius:2px;padding:24px;margin-bottom:16px;}
+
+/* ── FORM ELEMENTS ── */
+.form-group{margin-bottom:18px;}
+.form-label{font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--warm-gray);font-weight:200;display:block;margin-bottom:7px;}
+.form-input{width:100%;border:1px solid var(--border);border-radius:1px;padding:11px 14px;font-family:'Josefin Sans',sans-serif;font-size:12px;letter-spacing:1px;color:var(--charcoal);background:var(--cream);outline:none;transition:border-color .2s;}
+.form-input:focus{border-color:var(--gold);}
+.form-input::placeholder{color:var(--rose-nude);opacity:.7;}
+select.form-input{cursor:pointer;}
+textarea.form-input{resize:vertical;min-height:80px;}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 24px;font-family:'Josefin Sans',sans-serif;font-size:9px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;border-radius:1px;border:none;transition:all .2s;font-weight:300;}
+.btn-primary{background:var(--charcoal);color:var(--cream);}
+.btn-primary:hover{background:#2C2320;}
+.btn-gold{background:var(--gold);color:var(--charcoal);}
+.btn-gold:hover{background:var(--gold-dark);color:var(--cream);}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--charcoal);}
+.btn-outline:hover{border-color:var(--gold);color:var(--gold-dark);}
+.btn-danger{background:var(--error);color:var(--white);}
+.btn-sm{padding:8px 16px;font-size:8px;}
+.btn-full{width:100%;}
+
+/* ── SCORE DISPLAY ── */
+.score-badge{display:inline-flex;align-items:center;gap:6px;background:var(--charcoal);color:var(--gold-light);padding:6px 14px;border-radius:20px;font-size:9px;letter-spacing:2px;text-transform:uppercase;}
+.score-badge .score-num{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;}
+
+/* ── DASHBOARD STATS ── */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:var(--white);border:1px solid var(--border);border-radius:2px;padding:16px;text-align:center;}
+.stat-val{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;color:var(--charcoal);line-height:1;}
+.stat-val.gold{color:var(--gold-dark);}
+.stat-label{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--warm-gray);margin-top:4px;font-weight:200;}
+
+/* ── TABLE ── */
+.table-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:11px;}
+thead th{font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--warm-gray);font-weight:200;padding:10px 12px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap;}
+tbody td{padding:12px 12px;border-bottom:1px solid rgba(201,169,110,0.08);color:var(--charcoal);vertical-align:top;}
+tbody tr:last-child td{border-bottom:none;}
+tbody tr:hover{background:rgba(201,169,110,0.04);}
+
+/* ── STATUS BADGES ── */
+.status{display:inline-block;padding:3px 10px;border-radius:20px;font-size:7px;letter-spacing:2px;text-transform:uppercase;font-weight:300;}
+.status-pending{background:rgba(201,169,110,0.15);color:var(--gold-dark);}
+.status-contacted{background:rgba(107,142,107,0.15);color:var(--success);}
+.status-converted{background:rgba(107,142,107,0.3);color:#3D6B3D;}
+.status-lost{background:rgba(192,98,90,0.15);color:var(--error);}
+
+/* ── TABS ── */
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:24px;gap:0;}
+.tab{padding:12px 20px;font-size:8px;letter-spacing:3px;text-transform:uppercase;cursor:pointer;color:var(--warm-gray);border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .2s;font-weight:200;}
+.tab.active{color:var(--gold-dark);border-bottom-color:var(--gold);}
+.tab-panel{display:none;}
+.tab-panel.active{display:block;}
+
+/* ── NOTIFICATIONS ── */
+.notification{position:fixed;top:20px;right:20px;left:20px;max-width:380px;margin:0 auto;background:var(--charcoal);color:var(--cream);padding:16px 20px;border-radius:2px;border-left:3px solid var(--gold);z-index:9999;font-size:11px;letter-spacing:1px;animation:slideIn .3s ease;display:none;}
+.notification.show{display:block;}
+.notification.success{border-left-color:var(--success);}
+.notification.error{border-left-color:var(--error);}
+@keyframes slideIn{from{transform:translateY(-20px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+
+/* ── PROCEDURE TABLE ── */
+.proc-table{border:1px solid var(--border);border-radius:2px;overflow:hidden;}
+.proc-row{display:flex;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;}
+.proc-row:last-child{border-bottom:none;}
+.proc-row:hover{background:rgba(201,169,110,0.06);}
+.proc-row.selected{background:rgba(201,169,110,0.12);border-left:3px solid var(--gold);}
+.proc-name{flex:1;font-size:12px;letter-spacing:.5px;}
+.proc-score{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--gold-dark);min-width:50px;text-align:right;}
+.proc-score-lbl{font-size:7px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);text-align:right;}
+.proc-discount{font-size:9px;color:var(--rose-nude);letter-spacing:1px;}
+
+/* ── ALERT / NOTIFICATION PANEL ── */
+.alert-card{border-left:3px solid var(--gold);padding-left:16px;}
+.alert-new{animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{border-left-color:var(--gold);}50%{border-left-color:var(--gold-light);}}
+
+/* ── SCORE PROGRESS ── */
+.progress-bar{height:4px;background:rgba(201,169,110,0.15);border-radius:2px;margin:8px 0;overflow:hidden;}
+.progress-fill{height:100%;background:linear-gradient(to right,var(--gold-dark),var(--gold));border-radius:2px;transition:width .6s ease;}
+
+/* ── LOGIN / REGISTER ── */
+.auth-page{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;background:var(--charcoal);position:relative;overflow:hidden;}
+.auth-page::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;background:radial-gradient(ellipse 60% 40% at 50% 10%,rgba(201,169,110,0.1) 0%,transparent 60%),radial-gradient(ellipse 40% 60% at 80% 80%,rgba(201,169,110,0.05) 0%,transparent 60%);pointer-events:none;}
+.auth-box{width:100%;max-width:400px;position:relative;z-index:1;}
+.auth-logo{text-align:center;margin-bottom:40px;}
+.auth-logo .wordmark{font-family:'Cormorant Garamond',serif;font-weight:300;font-size:48px;letter-spacing:14px;color:var(--cream);text-transform:uppercase;}
+.auth-logo .wordmark .a{color:var(--gold-light);}
+.auth-logo .sub{font-size:8px;letter-spacing:5px;text-transform:uppercase;color:var(--gold);opacity:.7;margin-top:6px;font-weight:100;}
+.auth-logo .tagline{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;color:var(--rose-nude);margin-top:8px;letter-spacing:1px;opacity:.8;}
+.auth-ornament{display:flex;align-items:center;gap:10px;margin:0 auto 32px;width:fit-content;}
+.a-line{width:50px;height:1px;background:linear-gradient(to right,transparent,var(--gold));}
+.a-diamond{width:5px;height:5px;background:var(--gold);transform:rotate(45deg);}
+.auth-card{background:rgba(255,255,255,0.04);border:1px solid rgba(201,169,110,0.15);border-radius:2px;padding:32px;}
+.auth-card .form-label{color:var(--gold-light);opacity:.7;}
+.auth-card .form-input{background:rgba(255,255,255,0.05);border-color:rgba(201,169,110,0.2);color:var(--cream);}
+.auth-card .form-input:focus{border-color:var(--gold);}
+.auth-card .form-input::placeholder{color:rgba(212,181,168,0.4);}
+.auth-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--cream);letter-spacing:3px;margin-bottom:24px;text-align:center;text-transform:uppercase;}
+.auth-link{color:var(--gold);font-size:9px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;text-decoration:none;display:inline-block;margin-top:12px;text-align:center;width:100%;}
+.auth-link:hover{color:var(--gold-light);}
+
+/* ── WHATSAPP BUTTON ── */
+.wa-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:#25D366;color:white;border-radius:20px;font-size:8px;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border:none;font-family:'Josefin Sans',sans-serif;font-weight:300;}
+.wa-btn:hover{background:#128C7E;}
+
+/* ── MODAL ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,22,20,0.8);z-index:1000;display:none;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.show{display:flex;}
+.modal{background:var(--cream);border-radius:2px;padding:28px;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;letter-spacing:3px;text-transform:uppercase;margin-bottom:20px;color:var(--charcoal);}
+.modal-close{float:right;cursor:pointer;color:var(--warm-gray);font-size:18px;line-height:1;}
+
+/* ── REDEEM OPTIONS ── */
+.redeem-opt{border:1px solid var(--border);border-radius:2px;padding:20px;margin-bottom:12px;cursor:pointer;transition:all .2s;}
+.redeem-opt:hover,.redeem-opt.selected{border-color:var(--gold);background:rgba(201,169,110,0.06);}
+.redeem-opt-title{font-size:12px;font-weight:300;letter-spacing:2px;text-transform:uppercase;color:var(--charcoal);margin-bottom:4px;}
+.redeem-opt-desc{font-size:10px;color:var(--warm-gray);letter-spacing:1px;line-height:1.6;}
+.redeem-opt-score{font-family:'Cormorant Garamond',serif;font-size:24px;color:var(--gold-dark);}
+
+/* ── RESPONSIVE ── */
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:repeat(2,1fr);}
+  .header-inner{flex-wrap:wrap;gap:10px;}
+  .nav-btns{display:flex;gap:6px;flex-wrap:wrap;}
+  .logo-mark{font-size:22px;letter-spacing:5px;}
+  .container-wide{padding:20px 14px 60px;}
+  table{font-size:10px;}
+  thead th,tbody td{padding:8px;}
+}
+@media(max-width:400px){
+  .tabs{overflow-x:auto;}
+  .tab{white-space:nowrap;}
+}
+
+/* ── DIVIDER ── */
+.divider{height:1px;background:linear-gradient(to right,transparent,var(--gold-light),transparent);opacity:.3;margin:20px 0;}
+.gold-text{color:var(--gold-dark);}
+.muted{color:var(--warm-gray);}
+.text-center{text-align:center;}
+.mt-8{margin-top:8px;}
+.mt-16{margin-top:16px;}
+.mb-16{margin-bottom:16px;}
+.flex{display:flex;}
+.flex-between{display:flex;align-items:center;justify-content:space-between;}
+.flex-center{display:flex;align-items:center;justify-content:center;}
+.gap-8{gap:8px;}
+.gap-12{gap:12px;}
+.italic{font-family:'Cormorant Garamond',serif;font-style:italic;}
+
+/* ── CHIP ── */
+.chip{display:inline-block;padding:2px 10px;border:1px solid var(--border);border-radius:20px;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);}
+.chip-gold{border-color:var(--gold);color:var(--gold-dark);}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:40px 20px;}
+.empty-icon{font-size:32px;margin-bottom:12px;opacity:.3;}
+.empty-text{font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);}
+
+/* ── REPORT FILTER ── */
+.filter-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;align-items:flex-end;}
+.filter-row .form-group{margin-bottom:0;min-width:140px;}
+
+/* ── STEP INDICATOR ── */
+.steps{display:flex;align-items:center;gap:0;margin-bottom:28px;}
+.step{display:flex;align-items:center;gap:6px;}
+.step-num{width:24px;height:24px;border-radius:50%;background:var(--border);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--warm-gray);font-weight:300;flex-shrink:0;}
+.step.active .step-num{background:var(--charcoal);color:var(--gold-light);}
+.step.done .step-num{background:var(--gold);color:var(--charcoal);}
+.step-label{font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--warm-gray);white-space:nowrap;}
+.step.active .step-label{color:var(--charcoal);}
+.step-line{flex:1;height:1px;background:var(--border);margin:0 6px;}
+</style>
+</head>
+<body>
+
+<!-- NOTIFICATION -->
+<div class="notification" id="notif"></div>
+
+<!-- ══════════════════════════════════════════════
+     VIEW: LOGIN INDICADOR
+══════════════════════════════════════════════ -->
+<div class="view active" id="view-login">
+  <div class="auth-page">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="wordmark">LUM<span class="a">É</span>A</div>
+        <div class="sub">Clínica Estética</div>
+        <div class="tagline">Onde a beleza encontra a sua luz</div>
+      </div>
+      <div class="auth-ornament">
+        <div class="a-line"></div>
+        <div class="a-diamond"></div>
+        <div class="a-line" style="background:linear-gradient(to left,transparent,var(--gold))"></div>
+      </div>
+      <div class="auth-card" id="login-card">
+        <div class="auth-title">Acesso</div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" class="form-input" id="login-email" placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" class="form-input" id="login-pass" placeholder="••••••">
+        </div>
+        <button class="btn btn-gold btn-full mt-16" onclick="doLogin()">Entrar</button>
+        <a class="auth-link" onclick="showView('view-register')">Cadastrar-se como Indicador</a>
+        <a class="auth-link" onclick="doAdminLogin()" style="margin-top:6px;color:var(--warm-gray);font-size:8px;">Acesso Administrativo</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     VIEW: CADASTRO INDICADOR
+══════════════════════════════════════════════ -->
+<div class="view" id="view-register">
+  <div class="auth-page">
+    <div class="auth-box">
+      <div class="auth-logo">
+        <div class="wordmark">LUM<span class="a">É</span>A</div>
+        <div class="sub">Programa de Indicações</div>
+      </div>
+      <div class="auth-ornament">
+        <div class="a-line"></div>
+        <div class="a-diamond"></div>
+        <div class="a-line" style="background:linear-gradient(to left,transparent,var(--gold))"></div>
+      </div>
+      <div class="auth-card">
+        <div class="auth-title">Cadastro</div>
+        <div class="form-group">
+          <label class="form-label">Nome completo</label>
+          <input type="text" class="form-input" id="reg-name" placeholder="Seu nome completo">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail</label>
+          <input type="email" class="form-input" id="reg-email" placeholder="seu@email.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone / WhatsApp</label>
+          <input type="tel" class="form-input" id="reg-phone" placeholder="(11) 9 0000-0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Senha</label>
+          <input type="password" class="form-input" id="reg-pass" placeholder="Crie uma senha">
+        </div>
+        <button class="btn btn-gold btn-full mt-16" onclick="doRegister()">Criar Conta</button>
+        <a class="auth-link" onclick="showView('view-login')">Já tenho cadastro — Entrar</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     VIEW: APP INDICADOR
+══════════════════════════════════════════════ -->
+<div class="view" id="view-app">
+  <div class="app-header">
+    <div class="header-inner">
+      <div>
+        <div class="logo-mark">LUM<span class="a">É</span>A</div>
+        <div class="logo-sub">Indicações</div>
+      </div>
+      <div class="flex gap-8" style="align-items:center;flex-wrap:wrap;">
+        <div class="score-badge"><span class="score-num" id="header-score">0</span>&nbsp;pts</div>
+        <button class="nav-btn" onclick="logoutUser()">Sair</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('tab-home',this)">Início</div>
+      <div class="tab" onclick="switchTab('tab-indicate',this)">Indicar</div>
+      <div class="tab" onclick="switchTab('tab-history',this)">Histórico</div>
+      <div class="tab" onclick="switchTab('tab-redeem',this)">Resgatar</div>
+    </div>
+
+    <!-- HOME -->
+    <div class="tab-panel active" id="tab-home">
+      <div class="slabel">Olá, <span id="user-greeting" style="color:var(--gold-dark);margin-left:4px;text-transform:none;letter-spacing:0;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;"></span></div>
+
+      <div class="card" style="background:var(--charcoal);border-color:rgba(201,169,110,0.15);position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;right:0;bottom:0;left:0;background:radial-gradient(ellipse 60% 60% at 100% 0%,rgba(201,169,110,0.08),transparent);pointer-events:none;"></div>
+        <div style="font-size:8px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);font-weight:200;margin-bottom:12px;">Seu Score</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:56px;font-weight:300;color:var(--cream);line-height:1;" id="big-score">0</div>
+        <div style="font-size:9px;letter-spacing:2px;color:var(--warm-gray);margin-top:4px;">pontos acumulados</div>
+        <div style="margin-top:16px;">
+          <div class="progress-bar"><div class="progress-fill" id="score-progress" style="width:0%"></div></div>
+          <div style="display:flex;justify-content:space-between;font-size:8px;letter-spacing:1px;color:var(--warm-gray);margin-top:4px;">
+            <span>0 pts</span><span id="next-level-label">Próximo nível: 100 pts</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-val" id="stat-total">0</div>
+          <div class="stat-label">Indicações</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val gold" id="stat-converted">0</div>
+          <div class="stat-label">Convertidas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="stat-pending">0</div>
+          <div class="stat-label">Aguardando</div>
+        </div>
+      </div>
+
+      <div class="slabel">Níveis de Resgate</div>
+      <div class="card">
+        <div id="levels-list"></div>
+      </div>
+
+      <div class="slabel">Empresas Conveniadas</div>
+      <div id="companies-home"></div>
+    </div>
+
+    <!-- INDICAR -->
+    <div class="tab-panel" id="tab-indicate">
+      <div class="slabel">Nova Indicação</div>
+
+      <div class="steps">
+        <div class="step active" id="step1"><div class="step-num">1</div><div class="step-label">Empresa</div></div>
+        <div class="step-line"></div>
+        <div class="step" id="step2"><div class="step-num">2</div><div class="step-label">Procedimento</div></div>
+        <div class="step-line"></div>
+        <div class="step" id="step3"><div class="step-num">3</div><div class="step-label">Cliente</div></div>
+      </div>
+
+      <!-- Step 1: Empresa -->
+      <div id="indicate-step1">
+        <div class="form-group">
+          <label class="form-label">Empresa Conveniada</label>
+          <select class="form-input" id="ind-company" onchange="onCompanyChange()">
+            <option value="">Selecione a empresa</option>
+          </select>
+        </div>
+        <div id="company-info" style="display:none;" class="card" id="co-info-card">
+          <div id="co-name" style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:2px;"></div>
+          <div id="co-addr" style="font-size:10px;color:var(--warm-gray);letter-spacing:1px;margin-top:4px;"></div>
+          <div id="co-phone" style="font-size:10px;color:var(--warm-gray);letter-spacing:1px;margin-top:2px;"></div>
+        </div>
+        <button class="btn btn-primary btn-full mt-16" onclick="goStep(2)">Próximo →</button>
+      </div>
+
+      <!-- Step 2: Procedimento -->
+      <div id="indicate-step2" style="display:none;">
+        <div class="slabel">Escolha o Procedimento</div>
+        <div class="proc-table" id="proc-list"></div>
+        <div class="mt-16 flex gap-8">
+          <button class="btn btn-outline" onclick="goStep(1)">← Voltar</button>
+          <button class="btn btn-primary" style="flex:1;" onclick="goStep(3)">Próximo →</button>
+        </div>
+      </div>
+
+      <!-- Step 3: Cliente -->
+      <div id="indicate-step3" style="display:none;">
+        <div class="slabel">Dados do Cliente Indicado</div>
+        <div class="form-group">
+          <label class="form-label">Nome completo</label>
+          <input type="text" class="form-input" id="cli-name" placeholder="Nome do cliente">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Telefone / WhatsApp</label>
+          <input type="tel" class="form-input" id="cli-phone" placeholder="(11) 9 0000-0000">
+        </div>
+        <div class="form-group">
+          <label class="form-label">E-mail (opcional)</label>
+          <input type="email" class="form-input" id="cli-email" placeholder="email@cliente.com">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Observações</label>
+          <textarea class="form-input" id="cli-obs" placeholder="Informações adicionais sobre o cliente..."></textarea>
+        </div>
+
+        <!-- Preview da mensagem -->
+        <div class="card-dark" style="margin-top:4px;">
+          <div style="font-size:7px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:10px;">Mensagem que será enviada ao cliente</div>
+          <div style="font-size:11px;color:var(--cream);line-height:1.7;font-weight:200;" id="msg-preview"></div>
+        </div>
+
+        <div class="mt-16 flex gap-8">
+          <button class="btn btn-outline" onclick="goStep(2)">← Voltar</button>
+          <button class="btn btn-gold" style="flex:1;" onclick="submitIndication()">✓ Cadastrar Indicação</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HISTÓRICO -->
+    <div class="tab-panel" id="tab-history">
+      <div class="slabel">Minhas Indicações</div>
+      <div id="history-list"></div>
+    </div>
+
+    <!-- RESGATAR -->
+    <div class="tab-panel" id="tab-redeem">
+      <div class="slabel">Resgatar Score</div>
+      <div class="card" style="text-align:center;margin-bottom:20px;">
+        <div style="font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--warm-gray);margin-bottom:8px;">Score disponível</div>
+        <div style="font-family:'Cormorant Garamond',serif;font-size:48px;font-weight:300;color:var(--gold-dark);" id="redeem-score">0</div>
+        <div style="font-size:9px;color:var(--warm-gray);letter-spacing:1px;">pontos</div>
+      </div>
+
+      <div class="slabel">Opções de Resgate</div>
+      <div id="redeem-options"></div>
+
+      <div class="divider"></div>
+      <div class="slabel">Histórico de Resgates</div>
+      <div id="redeem-history"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════
+     VIEW: PAINEL ADMINISTRATIVO
+══════════════════════════════════════════════ -->
+<div class="view" id="view-admin">
+  <div class="app-header">
+    <div class="header-inner">
+      <div>
+        <div class="logo-mark">LUM<span class="a">É</span>A</div>
+        <div class="logo-sub">Painel de Controle</div>
+      </div>
+      <div class="flex gap-8 nav-btns" style="align-items:center;flex-wrap:wrap;">
+        <button class="nav-btn active-nav" onclick="adminTab('adm-dash',this)">Dashboard</button>
+        <button class="nav-btn" onclick="adminTab('adm-leads',this)">Indicações</button>
+        <button class="nav-btn" onclick="adminTab('adm-indicadores',this)">Indicadores</button>
+        <button class="nav-btn" onclick="adminTab('adm-relatorios',this)">Relatórios</button>
+        <button class="nav-btn" onclick="logoutAdmin()">Sair</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-wide">
+
+    <!-- DASH -->
+    <div id="adm-dash" class="adm-panel">
+      <div class="slabel">Resumo Geral</div>
+      <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);">
+        <div class="stat-card">
+          <div class="stat-val" id="adm-total-ind">0</div>
+          <div class="stat-label">Total Indicações</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val gold" id="adm-convertidas">0</div>
+          <div class="stat-label">Convertidas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val" id="adm-indicadores">0</div>
+          <div class="stat-label">Indicadores</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-val gold" id="adm-receita">R$0</div>
+          <div class="stat-label">Receita Gerada</div>
+        </div>
+      </div>
+
+      <div class="slabel">Novas Indicações — Aguardando Contato</div>
+      <div id="adm-new-leads"></div>
+    </div>
+
+    <!-- LEADS -->
+    <div id="adm-leads" class="adm-panel" style="display:none;">
+      <div class="slabel">Todas as Indicações</div>
+      <div class="filter-row">
+        <div class="form-group">
+          <label class="form-label">Status</label>
+          <select class="form-input" id="filter-status" onchange="renderAdminLeads()">
+            <option value="">Todos</option>
+            <option value="pending">Aguardando</option>
+            <option value="contacted">Contatado</option>
+            <option value="converted">Convertido</option>
+            <option value="lost">Perdido</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data início</label>
+          <input type="date" class="form-input" id="filter-date-from" onchange="renderAdminLeads()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Data fim</label>
+          <input type="date" class="form-input" id="filter-date-to" onchange="renderAdminLeads()">
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Data</th>
+              <th>Cliente</th>
+              <th>Telefone</th>
+              <th>Indicador</th>
+              <th>Empresa</th>
+              <th>Procedimento</th>
+              <th>Score</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="leads-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- INDICADORES -->
+    <div id="adm-indicadores" class="adm-panel" style="display:none;">
+      <div class="slabel">Indicadores Cadastrados</div>
+      <div class="filter-row">
+        <div class="form-group">
+          <label class="form-label">Período início</label>
+          <input type="date" class="form-input" id="ind-date-from" onchange="renderIndicadores()">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Período fim</label>
+          <input type="date" class="form-input" id="ind-date-to" onchange="renderIndicadores()">
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome</th>
+              <th>E-mail</th>
+              <th>Telefone</th>
+              <th>Total Indicações</th>
+              <th>Convertidas</th>
+              <th>Score Total</th>
+              <th>Último Resgate</th>
+            </tr>
+          </thead>
+          <tbody id="indicadores-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- RELATÓRIOS -->
+    <div id="adm-relatorios" class="adm-panel" style="display:none;">
+      <div class="tabs">
+        <div class="tab active" onclick="switchSubTab('rel-financeiro',this)">Financeiro</div>
+        <div class="tab" onclick="switchSubTab('rel-servicos',this)">Serviços</div>
+        <div class="tab" onclick="switchSubTab('rel-resgates',this)">Resgates</div>
+      </div>
+
+      <!-- FINANCEIRO -->
+      <div class="tab-panel active" id="rel-financeiro">
+        <div class="slabel">Receita Gerada por Indicações</div>
+        <div class="filter-row">
+          <div class="form-group">
+            <label class="form-label">De</label>
+            <input type="date" class="form-input" id="rel-fin-from" onchange="renderRelFinanceiro()">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Até</label>
+            <input type="date" class="form-input" id="rel-fin-to" onchange="renderRelFinanceiro()">
+          </div>
+          <button class="btn btn-outline btn-sm" onclick="resetRelFinanceiro()">Limpar</button>
+        </div>
+        <div class="stats-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:20px;">
+          <div class="stat-card"><div class="stat-val gold" id="rel-fin-total">R$0</div><div class="stat-label">Receita Total</div></div>
+          <div class="stat-card"><div class="stat-val" id="rel-fin-count">0</div><div class="stat-label">Vendas</div></div>
+          <div class="stat-card"><div class="stat-val" id="rel-fin-ticket">R$0</div><div class="stat-label">Ticket Médio</div></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Empresa</th><th>Procedimento</th><th>Indicador</th><th>Cliente</th><th>Valor</th><th>Score Gerado</th></tr></thead>
+            <tbody id="rel-fin-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SERVIÇOS -->
+      <div class="tab-panel" id="rel-servicos">
+        <div class="slabel">Serviços por Indicação</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Procedimento</th><th>Empresa</th><th>Qtd Indicações</th><th>Convertidas</th><th>Taxa Conv.</th><th>Receita</th><th>Score Total</th></tr></thead>
+            <tbody id="rel-serv-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RESGATES -->
+      <div class="tab-panel" id="rel-resgates">
+        <div class="slabel">Histórico de Resgates</div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Data</th><th>Indicador</th><th>Tipo</th><th>Score Resgatado</th><th>Valor</th><th>Beneficiário</th></tr></thead>
+            <tbody id="rel-resg-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL: STATUS LEAD -->
+<div class="modal-overlay" id="modal-status">
+  <div class="modal">
+    <div class="modal-close" onclick="closeModal('modal-status')">✕</div>
+    <div class="modal-title">Atualizar Status</div>
+    <input type="hidden" id="modal-lead-id">
+    <div class="form-group">
+      <label class="form-label">Status do Lead</label>
+      <select class="form-input" id="modal-status-val">
+        <option value="pending">Aguardando Contato</option>
+        <option value="contacted">Contatado</option>
+        <option value="converted">Convertido — Procedimento Realizado</option>
+        <option value="lost">Perdido</option>
+      </select>
+    </div>
+    <div id="modal-converted-extra" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Valor do Procedimento (R$)</label>
+        <input type="number" class="form-input" id="modal-valor" placeholder="0,00">
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Observação Interna</label>
+      <textarea class="form-input" id="modal-obs" placeholder="Anotação interna..."></textarea>
+    </div>
+    <div class="mt-16 flex gap-8">
+      <button class="btn btn-outline" onclick="closeModal('modal-status')">Cancelar</button>
+      <button class="btn btn-gold" style="flex:1;" onclick="saveLeadStatus()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: RESGATAR -->
+<div class="modal-overlay" id="modal-redeem">
+  <div class="modal">
+    <div class="modal-close" onclick="closeModal('modal-redeem')">✕</div>
+    <div class="modal-title">Solicitar Resgate</div>
+    <div id="modal-redeem-content"></div>
+    <div class="mt-16 flex gap-8">
+      <button class="btn btn-outline" onclick="closeModal('modal-redeem')">Cancelar</button>
+      <button class="btn btn-gold" style="flex:1;" onclick="confirmRedeem()">Confirmar Resgate</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// DATA LAYER — localStorage
+// ══════════════════════════════════════════════
+
+const DB = {
+  get: (k) => JSON.parse(localStorage.getItem('lumea_'+k)||'null'),
+  set: (k,v) => localStorage.setItem('lumea_'+k, JSON.stringify(v)),
+  getArr: (k) => JSON.parse(localStorage.getItem('lumea_'+k)||'[]'),
+  push: (k,v) => { const a = DB.getArr(k); a.push(v); DB.set(k,a); }
+};
+
+// ══════════════════════════════════════════════
+// SEED DATA
+// ══════════════════════════════════════════════
+
+function seedData() {
+  if (DB.get('seeded')) return;
+
+  DB.set('companies', [
+    { id:'c1', name:'Luméa Clínica Estética', address:'Av. Principal, 1200 — Guarulhos, SP', phone:'(11) 9 0000-0000', email:'lumea@clinica.com' },
+    { id:'c2', name:'Luméa — Unidade Centro',  address:'R. Sete de Setembro, 320 — Guarulhos, SP', phone:'(11) 9 1111-1111', email:'centro@lumea.com' },
+    { id:'c3', name:'Luméa — Unidade Norte',   address:'Av. Tiradentes, 840 — Guarulhos, SP', phone:'(11) 9 2222-2222', email:'norte@lumea.com' },
+  ]);
+
+  DB.set('procedures', [
+    { id:'p1', companyId:'all', name:'Limpeza de Pele Profunda',     score:15, discount:10, value:220 },
+    { id:'p2', companyId:'all', name:'Peeling Químico',               score:25, discount:12, value:350 },
+    { id:'p3', companyId:'all', name:'Microagulhamento Facial',       score:40, discount:15, value:480 },
+    { id:'p4', companyId:'all', name:'Toxina Botulínica',             score:60, discount:10, value:750 },
+    { id:'p5', companyId:'all', name:'Preenchimento Labial',          score:55, discount:10, value:680 },
+    { id:'p6', companyId:'all', name:'Hydra Facial',                  score:30, discount:12, value:380 },
+    { id:'p7', companyId:'all', name:'Laser CO2 Fracionado',          score:80, discount:15, value:980 },
+    { id:'p8', companyId:'all', name:'Bioestimulador de Colágeno',    score:70, discount:12, value:860 },
+    { id:'p9', companyId:'all', name:'Depilação a Laser (área)',      score:20, discount:15, value:280 },
+    { id:'p10',companyId:'all', name:'Massagem Modeladora',           score:12, discount:10, value:160 },
+  ]);
+
+  DB.set('levels', [
+    { pts:50,   label:'Bronze',   reward:'Desconto de R$30 em qualquer serviço',          cashValue:30  },
+    { pts:100,  label:'Prata',    reward:'Desconto de R$60 ou Limpeza de Pele grátis',    cashValue:60  },
+    { pts:200,  label:'Ouro',     reward:'R$120 em créditos ou Hydra Facial grátis',      cashValue:120 },
+    { pts:400,  label:'Platina',  reward:'R$250 em créditos ou Peeling grátis',           cashValue:250 },
+    { pts:800,  label:'Diamond',  reward:'R$500 em créditos — qualquer serviço ou pessoa',cashValue:500 },
+  ]);
+
+  // admin
+  DB.set('admin', { email:'admin@lumea.com', pass:'lumea2025' });
+
+  // demo indicador
+  DB.set('users', [
+    { id:'u_demo', name:'Ana Paula Ferreira', email:'ana@demo.com', phone:'(11)91234-5678', pass:'123456', score:175, createdAt:'2025-01-10' }
+  ]);
+
+  // demo indicações
+  const now = new Date();
+  const d = (n) => new Date(now - n*86400000).toISOString();
+
+  DB.set('leads', [
+    { id:'l1', userId:'u_demo', userName:'Ana Paula Ferreira', userPhone:'(11)91234-5678',
+      companyId:'c1', companyName:'Luméa Clínica Estética',
+      procId:'p3', procName:'Microagulhamento Facial', procScore:40, procDiscount:15, procValue:480,
+      clientName:'Mariana Costa', clientPhone:'(11)98765-4321', clientEmail:'mariana@email.com', obs:'Amiga próxima',
+      status:'converted', statusObs:'Veio na semana seguinte e fechou.', valor:408,
+      createdAt:d(15), updatedAt:d(12), scoreGranted:true },
+    { id:'l2', userId:'u_demo', userName:'Ana Paula Ferreira', userPhone:'(11)91234-5678',
+      companyId:'c2', companyName:'Luméa — Unidade Centro',
+      procId:'p4', procName:'Toxina Botulínica', procScore:60, procDiscount:10, procValue:750,
+      clientName:'Carla Mendes', clientPhone:'(11)97654-3210', clientEmail:'', obs:'',
+      status:'contacted', statusObs:'Ligação feita, agendando.', valor:0,
+      createdAt:d(8), updatedAt:d(7), scoreGranted:false },
+    { id:'l3', userId:'u_demo', userName:'Ana Paula Ferreira', userPhone:'(11)91234-5678',
+      companyId:'c1', companyName:'Luméa Clínica Estética',
+      procId:'p6', procName:'Hydra Facial', procScore:30, procDiscount:12, procValue:380,
+      clientName:'Juliana Torres', clientPhone:'(11)96543-2109', clientEmail:'', obs:'',
+      status:'pending', statusObs:'', valor:0,
+      createdAt:d(2), updatedAt:d(2), scoreGranted:false },
+    { id:'l4', userId:'u_demo', userName:'Ana Paula Ferreira', userPhone:'(11)91234-5678',
+      companyId:'c3', companyName:'Luméa — Unidade Norte',
+      procId:'p2', procName:'Peeling Químico', procScore:25, procDiscount:12, procValue:350,
+      clientName:'Fernanda Lima', clientPhone:'(11)95432-1098', clientEmail:'', obs:'',
+      status:'lost', statusObs:'Não atende mais.', valor:0,
+      createdAt:d(20), updatedAt:d(18), scoreGranted:false },
+    { id:'l5', userId:'u_demo', userName:'Ana Paula Ferreira', userPhone:'(11)91234-5678',
+      companyId:'c1', companyName:'Luméa Clínica Estética',
+      procId:'p7', procName:'Laser CO2 Fracionado', procScore:80, procDiscount:15, procValue:980,
+      clientName:'Patricia Souza', clientPhone:'(11)94321-0987', clientEmail:'pati@email.com', obs:'',
+      status:'converted', statusObs:'Fechou pacote completo.', valor:833,
+      createdAt:d(30), updatedAt:d(25), scoreGranted:true },
+  ]);
+
+  DB.set('resgates', []);
+  DB.set('seeded', true);
+}
+
+seedData();
+
+// ══════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════
+
+let currentUser = null;
+let currentStep = 1;
+let selectedCompany = null;
+let selectedProc = null;
+let redeemSelected = null;
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+
+function showView(id) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function switchTab(panelId, el) {
+  const parent = el.parentElement;
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const cont = parent.nextElementSibling || parent.parentElement;
+  cont.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+  if(panelId === 'tab-history') renderHistory();
+  if(panelId === 'tab-redeem') renderRedeem();
+}
+
+function switchSubTab(panelId, el) {
+  const parent = el.closest('.tabs');
+  parent.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  const panels = document.querySelectorAll('#adm-relatorios .tab-panel');
+  panels.forEach(p => p.classList.remove('active'));
+  document.getElementById(panelId).classList.add('active');
+  if(panelId==='rel-servicos') renderRelServicos();
+  if(panelId==='rel-resgates') renderRelResgates();
+  if(panelId==='rel-financeiro') renderRelFinanceiro();
+}
+
+function adminTab(panelId, el) {
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active-nav'));
+  el.classList.add('active-nav');
+  document.querySelectorAll('.adm-panel').forEach(p => p.style.display='none');
+  document.getElementById(panelId).style.display='block';
+  if(panelId==='adm-dash') renderAdminDash();
+  if(panelId==='adm-leads') renderAdminLeads();
+  if(panelId==='adm-indicadores') renderIndicadores();
+  if(panelId==='adm-relatorios') renderRelFinanceiro();
+}
+
+// ══════════════════════════════════════════════
+// AUTH
+// ══════════════════════════════════════════════
+
+function doLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  if(!email || !pass) return notify('Preencha e-mail e senha.','error');
+  const users = DB.getArr('users');
+  const user = users.find(u => u.email === email && u.pass === pass);
+  if(!user) return notify('E-mail ou senha inválidos.','error');
+  currentUser = user;
+  DB.set('session', user.id);
+  loadUserApp();
+}
+
+function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const email = document.getElementById('reg-email').value.trim();
+  const phone = document.getElementById('reg-phone').value.trim();
+  const pass  = document.getElementById('reg-pass').value;
+  if(!name||!email||!phone||!pass) return notify('Preencha todos os campos.','error');
+  const users = DB.getArr('users');
+  if(users.find(u=>u.email===email)) return notify('E-mail já cadastrado.','error');
+  const user = { id:'u_'+Date.now(), name, email, phone, pass, score:0, createdAt:new Date().toISOString() };
+  DB.push('users', user);
+  currentUser = user;
+  DB.set('session', user.id);
+  notify('Conta criada com sucesso!','success');
+  setTimeout(()=>loadUserApp(),800);
+}
+
+function doAdminLogin() {
+  const email = document.getElementById('login-email').value.trim();
+  const pass  = document.getElementById('login-pass').value;
+  const admin = DB.get('admin');
+  if(email===admin.email && pass===admin.pass) {
+    showView('view-admin');
+    renderAdminDash();
+  } else {
+    notify('Credenciais administrativas inválidas.','error');
+  }
+}
+
+function logoutUser() { currentUser=null; DB.set('session',null); showView('view-login'); }
+function logoutAdmin() { showView('view-login'); }
+
+// ══════════════════════════════════════════════
+// USER APP
+// ══════════════════════════════════════════════
+
+function loadUserApp() {
+  showView('view-app');
+  // reset tabs
+  document.querySelectorAll('#view-app .tab').forEach((t,i)=>{ t.classList.toggle('active',i===0); });
+  document.querySelectorAll('#view-app .tab-panel').forEach((p,i)=>{ p.classList.toggle('active',i===0); });
+
+  document.getElementById('user-greeting').textContent = currentUser.name.split(' ')[0];
+  updateScoreDisplay();
+  renderLevels();
+  renderCompaniesHome();
+  populateCompanySelect();
+  resetIndicateForm();
+}
+
+function updateScoreDisplay() {
+  const score = getUserScore();
+  document.getElementById('header-score').textContent = score;
+  document.getElementById('big-score').textContent = score;
+  document.getElementById('redeem-score').textContent = score;
+
+  // progress to next level
+  const levels = DB.getArr('levels');
+  const next = levels.find(l=>l.pts > score);
+  const prev = [...levels].reverse().find(l=>l.pts<=score);
+  const prevPts = prev ? prev.pts : 0;
+  const nextPts = next ? next.pts : levels[levels.length-1].pts;
+  const pct = next ? Math.min(100,((score-prevPts)/(nextPts-prevPts))*100) : 100;
+  document.getElementById('score-progress').style.width = pct+'%';
+  document.getElementById('next-level-label').textContent = next ? `Próximo nível: ${nextPts} pts` : 'Nível máximo atingido!';
+
+  // stats
+  const leads = DB.getArr('leads').filter(l=>l.userId===currentUser.id);
+  document.getElementById('stat-total').textContent = leads.length;
+  document.getElementById('stat-converted').textContent = leads.filter(l=>l.status==='converted').length;
+  document.getElementById('stat-pending').textContent = leads.filter(l=>l.status==='pending').length;
+}
+
+function getUserScore() {
+  const users = DB.getArr('users');
+  const u = users.find(u=>u.id===currentUser.id);
+  return u ? u.score : 0;
+}
+
+function updateUserScore(delta) {
+  const users = DB.getArr('users');
+  const idx = users.findIndex(u=>u.id===currentUser.id);
+  if(idx>-1){ users[idx].score = (users[idx].score||0)+delta; DB.set('users',users); currentUser=users[idx]; }
+}
+
+function renderLevels() {
+  const levels = DB.getArr('levels');
+  const score = getUserScore();
+  const html = levels.map(l=>{
+    const done = score >= l.pts;
+    return `<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);">
+      <div style="width:32px;height:32px;border-radius:50%;background:${done?'var(--gold)':'var(--border)'};display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;letter-spacing:1px;color:${done?'var(--charcoal)':'var(--warm-gray)'};">${l.pts}</div>
+      <div style="flex:1;">
+        <div style="font-size:10px;letter-spacing:2px;text-transform:uppercase;color:${done?'var(--gold-dark)':'var(--charcoal)'};">${l.label}</div>
+        <div style="font-size:9px;color:var(--warm-gray);margin-top:2px;">${l.reward}</div>
+      </div>
+      ${done?'<div style="font-size:9px;color:var(--success);letter-spacing:1px;">✓ Atingido</div>':''}
+    </div>`;
+  }).join('');
+  document.getElementById('levels-list').innerHTML = html || '<div class="empty-state"><div class="empty-text">Nenhum nível configurado</div></div>';
+}
+
+function renderCompaniesHome() {
+  const companies = DB.getArr('companies');
+  const html = companies.map(c=>`
+    <div class="card" style="margin-bottom:12px;">
+      <div style="font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:300;letter-spacing:2px;">${c.name}</div>
+      <div style="font-size:10px;color:var(--warm-gray);margin-top:4px;letter-spacing:.5px;">📍 ${c.address}</div>
+      <div style="font-size:10px;color:var(--warm-gray);margin-top:2px;letter-spacing:.5px;">📞 ${c.phone}</div>
+    </div>`).join('');
+  document.getElementById('companies-home').innerHTML = html;
+}
+
+// ── INDICATE FLOW ──
+
+function populateCompanySelect() {
+  const companies = DB.getArr('companies');
+  const sel = document.getElementById('ind-company');
+  sel.innerHTML = '<option value="">Selecione a empresa</option>';
+  companies.forEach(c=>{ sel.innerHTML+=`<option value="${c.id}">${c.name}</option>`; });
+}
+
+function onCompanyChange() {
+  const val = document.getElementById('ind-company').value;
+  const companies = DB.getArr('companies');
+  selectedCompany = companies.find(c=>c.id===val)||null;
+  const info = document.getElementById('company-info');
+  if(selectedCompany){
+    document.getElementById('co-name').textContent = selectedCompany.name;
+    document.getElementById('co-addr').textContent = '📍 '+selectedCompany.address;
+    document.getElementById('co-phone').textContent = '📞 '+selectedCompany.phone;
+    info.style.display='block';
+  } else { info.style.display='none'; }
+}
+
+function goStep(n) {
+  if(n===2 && !selectedCompany) return notify('Selecione uma empresa.','error');
+  if(n===3 && !selectedProc) return notify('Selecione um procedimento.','error');
+  currentStep = n;
+  ['indicate-step1','indicate-step2','indicate-step3'].forEach((id,i)=>{
+    document.getElementById(id).style.display = (i===n-1)?'block':'none';
+  });
+  ['step1','step2','step3'].forEach((id,i)=>{
+    const el = document.getElementById(id);
+    el.className = 'step' + (i<n-1?' done':i===n-1?' active':'');
+  });
+  if(n===2) renderProcList();
+  if(n===3) updateMsgPreview();
+}
+
+function renderProcList() {
+  const procs = DB.getArr('procedures');
+  const html = procs.map(p=>{
+    const sel = selectedProc && selectedProc.id===p.id;
+    return `<div class="proc-row${sel?' selected':''}" onclick="selectProc('${p.id}')">
+      <div><div class="proc-name">${p.name}</div><div class="proc-discount">Desconto ao cliente: ${p.discount}%</div></div>
+      <div style="text-align:right;"><div class="proc-score">${p.score}</div><div class="proc-score-lbl">pts</div></div>
+    </div>`;
+  }).join('');
+  document.getElementById('proc-list').innerHTML = html;
+}
+
+function selectProc(id) {
+  const procs = DB.getArr('procedures');
+  selectedProc = procs.find(p=>p.id===id)||null;
+  renderProcList();
+}
+
+function updateMsgPreview() {
+  if(!selectedCompany || !selectedProc) return;
+  const clientName = document.getElementById('cli-name').value || '[Nome do Cliente]';
+  const msg = `Olá, ${clientName}! 😊\n\nVocê foi indicado(a) para a ${selectedCompany.name} por um amigo especial.\n\nServiço indicado: *${selectedProc.name}*\nDesconto exclusivo: *${selectedProc.discount}%* na primeira consulta!\n\n📍 ${selectedCompany.address}\n📞 ${selectedCompany.phone}\n\nEspero você por aqui! — Equipe Luméa ✨`;
+  document.getElementById('msg-preview').textContent = msg;
+}
+
+function submitIndication() {
+  const clientName  = document.getElementById('cli-name').value.trim();
+  const clientPhone = document.getElementById('cli-phone').value.trim();
+  const clientEmail = document.getElementById('cli-email').value.trim();
+  const obs         = document.getElementById('cli-obs').value.trim();
+  if(!clientName || !clientPhone) return notify('Preencha nome e telefone do cliente.','error');
+
+  const lead = {
+    id:'l'+Date.now(),
+    userId: currentUser.id,
+    userName: currentUser.name,
+    userPhone: currentUser.phone,
+    companyId: selectedCompany.id,
+    companyName: selectedCompany.name,
+    procId: selectedProc.id,
+    procName: selectedProc.name,
+    procScore: selectedProc.score,
+    procDiscount: selectedProc.discount,
+    procValue: selectedProc.value,
+    clientName, clientPhone, clientEmail, obs,
+    status:'pending', statusObs:'', valor:0,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    scoreGranted: false
+  };
+
+  DB.push('leads', lead);
+  notify('Indicação cadastrada! A atendente será notificada.','success');
+  resetIndicateForm();
+  updateScoreDisplay();
+  // switch to history
+  setTimeout(()=>{
+    document.querySelectorAll('#view-app .tab').forEach((t,i)=>t.classList.toggle('active',i===2));
+    document.querySelectorAll('#view-app .tab-panel').forEach((p,i)=>p.classList.toggle('active',i===2));
+    renderHistory();
+  },1200);
+}
+
+function resetIndicateForm() {
+  selectedCompany = null; selectedProc = null; currentStep=1;
+  document.getElementById('ind-company').value='';
+  document.getElementById('company-info').style.display='none';
+  ['cli-name','cli-phone','cli-email','cli-obs'].forEach(id=>document.getElementById(id).value='');
+  goStep(1);
+}
+
+// ── HISTORY ──
+
+function renderHistory() {
+  const leads = DB.getArr('leads').filter(l=>l.userId===currentUser.id)
+    .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+
+  if(!leads.length){
+    document.getElementById('history-list').innerHTML='<div class="empty-state"><div class="empty-icon">💎</div><div class="empty-text">Nenhuma indicação ainda</div></div>';
+    return;
+  }
+
+  const statusLabel = {pending:'Aguardando',contacted:'Contatado',converted:'Convertido',lost:'Perdido'};
+  const html = leads.map(l=>`
+    <div class="card" style="margin-bottom:12px;">
+      <div class="flex-between mb-16">
+        <div>
+          <div style="font-size:12px;font-weight:300;letter-spacing:1px;">${l.clientName}</div>
+          <div style="font-size:9px;color:var(--warm-gray);margin-top:2px;">${l.clientPhone}</div>
+        </div>
+        <span class="status status-${l.status}">${statusLabel[l.status]}</span>
+      </div>
+      <div style="font-size:9px;color:var(--warm-gray);letter-spacing:.5px;">${l.companyName}</div>
+      <div style="font-size:10px;color:var(--charcoal);margin-top:2px;">${l.procName}</div>
+      <div class="flex-between mt-8">
+        <div style="font-size:8px;color:var(--warm-gray);">${fmtDate(l.createdAt)}</div>
+        <div style="display:flex;align-items:center;gap:6px;">
+          ${l.scoreGranted?`<span class="chip chip-gold">+${l.procScore} pts</span>`:`<span class="chip">${l.procScore} pts potenciais</span>`}
+        </div>
+      </div>
+    </div>`).join('');
+  document.getElementById('history-list').innerHTML = html;
+}
+
+// ── REDEEM ──
+
+function renderRedeem() {
+  const score = getUserScore();
+  document.getElementById('redeem-score').textContent = score;
+
+  const levels = DB.getArr('levels');
+  const available = levels.filter(l=>l.pts<=score);
+
+  if(!available.length){
+    document.getElementById('redeem-options').innerHTML=`<div class="empty-state"><div class="empty-icon">⭐</div><div class="empty-text">Acumule ${levels[0]?.pts||50} pontos para resgatar</div></div>`;
+  } else {
+    const html = available.map(l=>`
+      <div class="redeem-opt" onclick="selectRedeem(this,'${l.pts}','${l.label}','${l.cashValue}','${l.reward}')">
+        <div class="flex-between">
+          <div>
+            <div class="redeem-opt-title">${l.label}</div>
+            <div class="redeem-opt-desc">${l.reward}</div>
+          </div>
+          <div style="text-align:right;"><div class="redeem-opt-score">${l.pts}</div><div style="font-size:7px;letter-spacing:2px;color:var(--warm-gray);">pts</div></div>
+        </div>
+      </div>`).join('');
+    document.getElementById('redeem-options').innerHTML = html;
+  }
+
+  // history
+  const resgates = DB.getArr('resgates').filter(r=>r.userId===currentUser.id)
+    .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  if(!resgates.length){
+    document.getElementById('redeem-history').innerHTML='<div class="empty-state"><div class="empty-text">Nenhum resgate realizado</div></div>';
+  } else {
+    document.getElementById('redeem-history').innerHTML = resgates.map(r=>`
+      <div class="card" style="margin-bottom:10px;">
+        <div class="flex-between">
+          <div><div style="font-size:11px;">${r.typeLabel}</div><div style="font-size:9px;color:var(--warm-gray);">${fmtDate(r.createdAt)}</div></div>
+          <span class="chip chip-gold">-${r.pts} pts</span>
+        </div>
+      </div>`).join('');
+  }
+}
+
+function selectRedeem(el, pts, label, cashValue, reward) {
+  document.querySelectorAll('.redeem-opt').forEach(e=>e.classList.remove('selected'));
+  el.classList.add('selected');
+  redeemSelected = { pts:parseInt(pts), label, cashValue:parseInt(cashValue), reward };
+  openModal('modal-redeem');
+  document.getElementById('modal-redeem-content').innerHTML=`
+    <div class="card" style="margin-bottom:16px;">
+      <div style="font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:8px;">Resgate Selecionado</div>
+      <div style="font-family:'Cormorant Garamond',serif;font-size:22px;">${label}</div>
+      <div style="font-size:10px;color:var(--warm-gray);margin-top:4px;">${reward}</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tipo de Resgate</label>
+      <select class="form-input" id="redeem-type">
+        <option value="cash">Receber valor monetário (R$${cashValue})</option>
+        <option value="service">Utilizar créditos em serviço</option>
+        <option value="gift">Presentear outra pessoa</option>
+      </select>
+    </div>
+    <div id="redeem-gift-field" style="display:none;">
+      <div class="form-group">
+        <label class="form-label">Nome do Beneficiário</label>
+        <input type="text" class="form-input" id="redeem-gift-name" placeholder="Nome de quem vai receber">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Telefone do Beneficiário</label>
+        <input type="tel" class="form-input" id="redeem-gift-phone" placeholder="(11) 9 0000-0000">
+      </div>
+    </div>`;
+
+  document.getElementById('redeem-type').addEventListener('change',function(){
+    document.getElementById('redeem-gift-field').style.display = this.value==='gift'?'block':'none';
+  });
+}
+
+function confirmRedeem() {
+  if(!redeemSelected) return;
+  const score = getUserScore();
+  if(score < redeemSelected.pts) return notify('Score insuficiente.','error');
+  const type = document.getElementById('redeem-type')?.value || 'cash';
+  const typeLabels = {cash:`Resgate Financeiro — R$${redeemSelected.cashValue}`, service:'Créditos em Serviço', gift:'Presente para Indicado'};
+  let beneficiary='';
+  if(type==='gift'){
+    const n = document.getElementById('redeem-gift-name')?.value||'';
+    const p = document.getElementById('redeem-gift-phone')?.value||'';
+    beneficiary = `${n} ${p}`;
+  }
+  const resgate = { id:'r'+Date.now(), userId:currentUser.id, userName:currentUser.name, pts:redeemSelected.pts, type, typeLabel:typeLabels[type], cashValue:redeemSelected.cashValue, beneficiary, createdAt:new Date().toISOString() };
+  DB.push('resgates', resgate);
+  updateUserScore(-redeemSelected.pts);
+  closeModal('modal-redeem');
+  notify('Resgate solicitado! A equipe Luméa entrará em contato.','success');
+  updateScoreDisplay();
+  renderRedeem();
+  redeemSelected=null;
+}
+
+// ══════════════════════════════════════════════
+// ADMIN PANEL
+// ══════════════════════════════════════════════
+
+function renderAdminDash() {
+  const leads = DB.getArr('leads');
+  const users = DB.getArr('users');
+  const converted = leads.filter(l=>l.status==='converted');
+  const receita = converted.reduce((s,l)=>s+(l.valor||0),0);
+
+  document.getElementById('adm-total-ind').textContent = leads.length;
+  document.getElementById('adm-convertidas').textContent = converted.length;
+  document.getElementById('adm-indicadores').textContent = users.length;
+  document.getElementById('adm-receita').textContent = 'R$'+receita.toLocaleString('pt-BR');
+
+  // new leads (pending, last 48h)
+  const cutoff = new Date(Date.now()-48*3600000);
+  const newLeads = leads.filter(l=>l.status==='pending'&&new Date(l.createdAt)>cutoff)
+    .sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+
+  if(!newLeads.length){
+    document.getElementById('adm-new-leads').innerHTML='<div class="empty-state"><div class="empty-text">Nenhuma indicação nova pendente</div></div>';
+    return;
+  }
+
+  const html = newLeads.map(l=>`
+    <div class="card alert-card alert-new" style="margin-bottom:12px;">
+      <div class="flex-between mb-16">
+        <div>
+          <div style="font-size:8px;letter-spacing:3px;text-transform:uppercase;color:var(--gold);">Nova Indicação — ${fmtDate(l.createdAt)}</div>
+          <div style="font-family:'Cormorant Garamond',serif;font-size:20px;margin-top:6px;">${l.clientName}</div>
+        </div>
+        <span class="status status-pending">Novo</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;font-size:10px;">
+        <div><span style="color:var(--warm-gray);">Telefone:</span> <strong>${l.clientPhone}</strong></div>
+        <div><span style="color:var(--warm-gray);">Indicador:</span> ${l.userName}</div>
+        <div><span style="color:var(--warm-gray);">Empresa:</span> ${l.companyName}</div>
+        <div><span style="color:var(--warm-gray);">Serviço:</span> ${l.procName}</div>
+        <div><span style="color:var(--warm-gray);">Desconto:</span> ${l.procDiscount}% off</div>
+        <div><span style="color:var(--warm-gray);">Score se fechar:</span> ${l.procScore} pts</div>
+      </div>
+      ${l.obs?`<div style="margin-top:10px;font-size:10px;color:var(--warm-gray);">Obs: ${l.obs}</div>`:''}
+      <div class="mt-16 flex gap-8">
+        <a class="wa-btn" href="https://wa.me/55${l.clientPhone.replace(/\D/g,'')}?text=${encodeURIComponent('Olá '+l.clientName+'! Somos da '+l.companyName+'. Você foi indicado para '+l.procName+'. Podemos conversar?')}" target="_blank">
+          📱 WhatsApp
+        </a>
+        <button class="btn btn-outline btn-sm" onclick="openStatusModal('${l.id}','${l.status}')">Atualizar Status</button>
+      </div>
+    </div>`).join('');
+  document.getElementById('adm-new-leads').innerHTML = html;
+}
+
+function renderAdminLeads() {
+  let leads = DB.getArr('leads');
+  const st  = document.getElementById('filter-status')?.value||'';
+  const df  = document.getElementById('filter-date-from')?.value||'';
+  const dt  = document.getElementById('filter-date-to')?.value||'';
+  if(st) leads = leads.filter(l=>l.status===st);
+  if(df) leads = leads.filter(l=>l.createdAt>=df);
+  if(dt) leads = leads.filter(l=>l.createdAt<=dt+'T23:59:59');
+  leads.sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+
+  const statusLabel = {pending:'Aguardando',contacted:'Contatado',converted:'Convertido',lost:'Perdido'};
+  const html = leads.map(l=>`<tr>
+    <td>${fmtDate(l.createdAt)}</td>
+    <td><strong>${l.clientName}</strong><br><span style="color:var(--warm-gray);font-size:9px;">${l.clientPhone}</span>${l.clientEmail?'<br><span style="color:var(--warm-gray);font-size:9px;">'+l.clientEmail+'</span>':''}</td>
+    <td>${l.clientPhone}</td>
+    <td>${l.userName}<br><span style="color:var(--warm-gray);font-size:9px;">${l.userPhone}</span></td>
+    <td>${l.companyName}</td>
+    <td>${l.procName}<br><span style="color:var(--warm-gray);font-size:9px;">${l.procDiscount}% off</span></td>
+    <td style="text-align:center;"><span class="chip chip-gold">${l.procScore} pts</span></td>
+    <td><span class="status status-${l.status}">${statusLabel[l.status]}</span>${l.statusObs?'<br><span style="font-size:9px;color:var(--warm-gray);">'+l.statusObs+'</span>':''}</td>
+    <td>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">
+        <button class="btn btn-outline btn-sm" onclick="openStatusModal('${l.id}','${l.status}')">Status</button>
+        <a class="wa-btn" href="https://wa.me/55${l.clientPhone.replace(/\D/g,'')}?text=${encodeURIComponent('Olá '+l.clientName+'!')}" target="_blank" style="font-size:8px;padding:6px 10px;">WA</a>
+      </div>
+    </td>
+  </tr>`).join('');
+  document.getElementById('leads-tbody').innerHTML = html || '<tr><td colspan="9" style="text-align:center;color:var(--warm-gray);padding:30px;">Nenhuma indicação encontrada</td></tr>';
+}
+
+function renderIndicadores() {
+  const users = DB.getArr('users');
+  const leads = DB.getArr('leads');
+  const resgates = DB.getArr('resgates');
+  const df = document.getElementById('ind-date-from')?.value||'';
+  const dt = document.getElementById('ind-date-to')?.value||'';
+
+  const html = users.map(u=>{
+    let ul = leads.filter(l=>l.userId===u.id);
+    if(df) ul = ul.filter(l=>l.createdAt>=df);
+    if(dt) ul = ul.filter(l=>l.createdAt<=dt+'T23:59:59');
+    const converted = ul.filter(l=>l.status==='converted');
+    const scoreTotal = ul.filter(l=>l.scoreGranted).reduce((s,l)=>s+l.procScore,0);
+    const lastResgate = resgates.filter(r=>r.userId===u.id).sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt))[0];
+    return `<tr>
+      <td><strong>${u.name}</strong></td>
+      <td>${u.email}</td>
+      <td>${u.phone}</td>
+      <td style="text-align:center;">${ul.length}</td>
+      <td style="text-align:center;">${converted.length}</td>
+      <td style="text-align:center;"><span class="chip chip-gold">${u.score||0} pts</span></td>
+      <td>${lastResgate?fmtDate(lastResgate.createdAt):'—'}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('indicadores-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:var(--warm-gray);padding:30px;">Nenhum indicador</td></tr>';
+}
+
+function renderRelFinanceiro() {
+  const leads = DB.getArr('leads').filter(l=>l.status==='converted');
+  const df = document.getElementById('rel-fin-from')?.value||'';
+  const dt = document.getElementById('rel-fin-to')?.value||'';
+  let filtered = leads;
+  if(df) filtered = filtered.filter(l=>l.updatedAt>=df);
+  if(dt) filtered = filtered.filter(l=>l.updatedAt<=dt+'T23:59:59');
+  filtered.sort((a,b)=>new Date(b.updatedAt)-new Date(a.updatedAt));
+
+  const total = filtered.reduce((s,l)=>s+(l.valor||0),0);
+  const ticket = filtered.length ? total/filtered.length : 0;
+  document.getElementById('rel-fin-total').textContent = 'R$'+total.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('rel-fin-count').textContent = filtered.length;
+  document.getElementById('rel-fin-ticket').textContent = 'R$'+ticket.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+  const html = filtered.map(l=>`<tr>
+    <td>${fmtDate(l.updatedAt)}</td>
+    <td>${l.companyName}</td>
+    <td>${l.procName}</td>
+    <td>${l.userName}</td>
+    <td>${l.clientName}</td>
+    <td><strong>R$${(l.valor||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></td>
+    <td><span class="chip chip-gold">${l.procScore} pts</span></td>
+  </tr>`).join('');
+  document.getElementById('rel-fin-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:var(--warm-gray);padding:30px;">Nenhum dado no período</td></tr>';
+}
+
+function resetRelFinanceiro(){
+  document.getElementById('rel-fin-from').value='';
+  document.getElementById('rel-fin-to').value='';
+  renderRelFinanceiro();
+}
+
+function renderRelServicos() {
+  const leads = DB.getArr('leads');
+  const procs = DB.getArr('procedures');
+  const map = {};
+  leads.forEach(l=>{
+    if(!map[l.procId]) map[l.procId]={ name:l.procName, company:l.companyName, total:0, converted:0, receita:0, score:0 };
+    map[l.procId].total++;
+    if(l.status==='converted'){ map[l.procId].converted++; map[l.procId].receita+=(l.valor||0); map[l.procId].score+=l.procScore; }
+  });
+  const html = Object.values(map).sort((a,b)=>b.total-a.total).map(p=>`<tr>
+    <td><strong>${p.name}</strong></td>
+    <td>${p.company}</td>
+    <td style="text-align:center;">${p.total}</td>
+    <td style="text-align:center;">${p.converted}</td>
+    <td style="text-align:center;">${p.total?Math.round(p.converted/p.total*100):0}%</td>
+    <td>R$${p.receita.toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+    <td><span class="chip chip-gold">${p.score} pts</span></td>
+  </tr>`).join('');
+  document.getElementById('rel-serv-tbody').innerHTML = html || '<tr><td colspan="7" style="text-align:center;color:var(--warm-gray);padding:30px;">Sem dados</td></tr>';
+}
+
+function renderRelResgates() {
+  const resgates = DB.getArr('resgates').sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt));
+  const html = resgates.map(r=>`<tr>
+    <td>${fmtDate(r.createdAt)}</td>
+    <td>${r.userName}</td>
+    <td>${r.typeLabel}</td>
+    <td style="text-align:center;"><span class="chip chip-gold">${r.pts} pts</span></td>
+    <td>R$${(r.cashValue||0).toLocaleString('pt-BR',{minimumFractionDigits:2})}</td>
+    <td>${r.beneficiary||'—'}</td>
+  </tr>`).join('');
+  document.getElementById('rel-resg-tbody').innerHTML = html || '<tr><td colspan="6" style="text-align:center;color:var(--warm-gray);padding:30px;">Nenhum resgate</td></tr>';
+}
+
+// ── STATUS MODAL ──
+
+function openStatusModal(leadId, currentStatus) {
+  document.getElementById('modal-lead-id').value = leadId;
+  document.getElementById('modal-status-val').value = currentStatus;
+  document.getElementById('modal-obs').value = '';
+  document.getElementById('modal-valor').value = '';
+  const converted = currentStatus==='converted';
+  document.getElementById('modal-converted-extra').style.display = converted?'block':'none';
+  document.getElementById('modal-status-val').addEventListener('change',function(){
+    document.getElementById('modal-converted-extra').style.display = this.value==='converted'?'block':'none';
+  });
+  openModal('modal-status');
+}
+
+function saveLeadStatus() {
+  const id = document.getElementById('modal-lead-id').value;
+  const status = document.getElementById('modal-status-val').value;
+  const obs = document.getElementById('modal-obs').value;
+  const valor = parseFloat(document.getElementById('modal-valor')?.value)||0;
+
+  const leads = DB.getArr('leads');
+  const idx = leads.findIndex(l=>l.id===id);
+  if(idx<0) return;
+
+  const wasConverted = leads[idx].status === 'converted';
+  leads[idx].status = status;
+  leads[idx].statusObs = obs;
+  leads[idx].updatedAt = new Date().toISOString();
+  if(status==='converted') leads[idx].valor = valor;
+
+  // Grant score if converting for first time
+  if(status==='converted' && !leads[idx].scoreGranted){
+    leads[idx].scoreGranted = true;
+    const users = DB.getArr('users');
+    const uidx = users.findIndex(u=>u.id===leads[idx].userId);
+    if(uidx>-1){ users[uidx].score=(users[uidx].score||0)+leads[idx].procScore; DB.set('users',users); }
+  }
+
+  DB.set('leads', leads);
+  closeModal('modal-status');
+  notify('Status atualizado com sucesso!','success');
+  renderAdminDash();
+  renderAdminLeads();
+}
+
+// ══════════════════════════════════════════════
+// UTILS
+// ══════════════════════════════════════════════
+
+function openModal(id){ document.getElementById(id).classList.add('show'); }
+function closeModal(id){ document.getElementById(id).classList.remove('show'); }
+
+function notify(msg, type='success'){
+  const el = document.getElementById('notif');
+  el.textContent = msg;
+  el.className = 'notification show '+(type||'');
+  setTimeout(()=>el.classList.remove('show'),3500);
+}
+
+function fmtDate(iso){
+  if(!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit',year:'2-digit'});
+}
+
+// Close modals clicking overlay
+document.querySelectorAll('.modal-overlay').forEach(el=>{
+  el.addEventListener('click',function(e){ if(e.target===this) this.classList.remove('show'); });
+});
+
+// ══════════════════════════════════════════════
+// INIT — check session
+// ══════════════════════════════════════════════
+
+(function init(){
+  const sid = DB.get('session');
+  if(sid){
+    const users = DB.getArr('users');
+    const u = users.find(u=>u.id===sid);
+    if(u){ currentUser=u; loadUserApp(); return; }
+  }
+  showView('view-login');
+})();
+</script>
+</body>
+</html>
